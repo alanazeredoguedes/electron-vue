@@ -49,7 +49,7 @@ async function createWindow() {
     width: 1920,
     height: 1080,
     title: 'Main window',
-    icon: join(process.env.VITE_PUBLIC, 'logo.svg'),
+    icon: join(process.env.VITE_PUBLIC, 'favicon.ico'),
     webPreferences: {
       preload,
       // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
@@ -105,12 +105,69 @@ app.on('activate', () => {
   }
 })
 
-// ipcMain.on("salvarTexto", (event, texto)=>{
+// New window example arg: new windows url
+ipcMain.handle('open-win', (_, arg) => {
+  const childWindow = new BrowserWindow({
+    webPreferences: {
+      preload,
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
+  })
+
+  if (process.env.VITE_DEV_SERVER_URL) {
+    childWindow.loadURL(`${url}#${arg}`)
+  } else {
+    childWindow.loadFile(indexHtml, { hash: arg })
+  }
+})
+
+ipcMain.on("salvarTexto", (event, texto)=>{
+
+  //fs.writeFileSync(texto+"/file.txt", 'dasdasdsadas')
+  console.log(texto)
+
+})
+ipcMain.handle('testeReceber', (event, args)=>{
+  return args.texto.toUpperCase()
+})
+
+
+// const sqlite3 = require('sqlite3');
+// const db = new sqlite3.Database(__dirname+'/database.db');
 //
-//   //fs.writeFileSync(texto+"/file.txt", 'dasdasdsadas')
-//   console.log(texto)
+// db.serialize(() => {
+//   db.run("CREATE TABLE Users (name, lastName)");
+//   db.run("INSERT INTO Users VALUES (?, ?)", ['foo', 'bar']);
+// });
+
+// const sequelize = new Sequelize({
+//   dialect: 'sqlite',
+//   storage: __dirname+'/database.sqlite'
+// })
 //
+// const Produto = sequelize.define('produto',{
+//   id:{
+//     type: Sequelize.INTEGER,
+//     autoIncrement: true,
+//     allowNull: false,
+//     primaryKey: true
+//   },
+//   nome: {
+//     type: Sequelize.STRING,
+//     allowNull: true
+//   },
 // })
-// ipcMain.handle('testeReceber', (event, args)=>{
-//   return args.texto.toUpperCase()
-// })
+//
+//
+// try {
+//
+//   const resultadoCreate = Produto.create({
+//     nome: 'mouse',
+//     preco: 10,
+//     descricao: 'Um mouse USB bonitão'
+//   })
+//    console.log(resultadoCreate);
+// } catch (error) {
+//   //console.log(error);
+// }
